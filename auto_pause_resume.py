@@ -110,3 +110,11 @@ def check_stillness_and_silence():
 
     # Schedule next check
     obs.timer_add(check_stillness_and_silence, check_interval * 1000)
+
+def script_load(settings):
+    logging.info("Script loaded.")
+    obs.timer_add(check_stillness_and_silence, check_interval * 1000)
+
+def script_unload():
+    logging.info("Script unloaded.")
+    obs.timer_remove(check_stillness_and_silence)
