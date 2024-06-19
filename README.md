@@ -36,8 +36,8 @@ This OBS script automatically pauses and resumes recording based on stillness in
 4. **Load the Script in OBS**:
 
    - Open OBS.
-   - Go to \`Tools\` > \`Scripts\`.
-   - Click the \`+\` button and load the \`auto_pause_resume.py\` script.
+   - Go to `Tools` > `Scripts`.
+   - Click the `+` button and load the `auto_pause_resume.py` script.
 
 5. **Configure the Script**:
    - After loading the script, you can configure the check interval, silence threshold, and stillness threshold in the script settings.
@@ -52,7 +52,7 @@ This OBS script automatically pauses and resumes recording based on stillness in
 
 1. **Start OBS**: Open OBS and start your recording or streaming session.
 2. **Script Execution**: The script will automatically pause and resume recording based on the configured thresholds for stillness and silence.
-3. **Logging**: Check the log file \`obs_auto_pause_resume.log\` for any errors or important events.
+3. **Logging**: Check the log file `obs_auto_pause_resume.log` for any errors or important events.
 
 ## License
 
