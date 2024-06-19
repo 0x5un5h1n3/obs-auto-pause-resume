@@ -1,5 +1,6 @@
 import obspython as obs
 import logging
+import cv2
 
 # Configuration
 check_interval = 1  # Check every 1 second
@@ -34,3 +35,21 @@ def script_properties():
     obs.obs_properties_add_float(props, "silence_threshold", "Silence Threshold (dB)", -100.0, 0.0, 0.1)
     obs.obs_properties_add_float(props, "stillness_threshold", "Stillness Threshold (%)", 0.0, 1.0, 0.01)
     return props
+
+def get_current_frame():
+    source = obs.obs_frontend_get_current_scene()
+    if source is None:
+        return None
+    source = obs.obs_scene_from_source(source)
+    if source is None:
+        return None
+    item = obs.obs_scene_find_source_recursive(source, "Video Capture Device")
+    if item is None:
+        return None
+    source = obs.obs_sceneitem_get_source(item)
+    if source is None:
+        return None
+    frame = obs.obs_source_get_frame(source)
+    if frame is None:
+        return None
+    return frame
