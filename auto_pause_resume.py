@@ -1,6 +1,8 @@
 import obspython as obs
 import logging
 import cv2
+import numpy as np
+import math
 
 # Configuration
 check_interval = 1  # Check every 1 second
@@ -53,3 +55,58 @@ def get_current_frame():
     if frame is None:
         return None
     return frame
+
+def check_stillness_and_silence():
+    global is_paused, last_frame
+
+    try:
+        # Get the current frame
+        current_frame = get_current_frame()
+        if current_frame is None:
+            logging.warning("No video frame found.")
+            return
+
+        # Convert frame to grayscale
+        current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
+
+        # Calculate frame difference
+        if last_frame is not None:
+            frame_diff = cv2.absdiff(last_frame, current_frame_gray)
+            non_zero_count = np.count_nonzero(frame_diff)
+            total_pixels = frame_diff.size
+            stillness = (non_zero_count / total_pixels) < stillness_threshold
+        else:
+            stillness = False
+
+        # Update last frame
+        last_frame = current_frame_gray
+
+        # Get the current audio level
+        audio_source = obs.obs_get_output_source(0)
+        if audio_source is not None:
+            audio_level = obs.obs_source_get_volume(audio_source)
+            obs.obs_source_release(audio_source)
+
+            # Convert volume to dB
+            audio_level_db = 20 * math.log10(audio_level) if audio_level > 0 else -100.0
+
+            # Check for silence
+            silence = audio_level_db < silence_threshold
+        else:
+            logging.warning("No audio source found.")
+            silence = False
+
+        # Pause or resume recording
+        if stillness and silence and not is_paused:
+            obs.obs_frontend_recording_pause()
+            is_paused = True
+            logging.info("Recording paused due to stillness and silence.")
+        elif not stillness and not silence and is_paused:
+            obs.obs_frontend_recording_resume()
+            is_paused = False
+            logging.info("Recording resumed due to activity.")
+    except Exception as e:
+        logging.error(f"Error in check_stillness_and_silence: {e}")
+
+    # Schedule next check
+    obs.timer_add(check_stillness_and_silence, check_interval * 1000)
